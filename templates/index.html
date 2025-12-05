@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>给未来写封信</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; margin: 0; }
+        .card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 350px; }
+        h2 { text-align: center; color: #333; }
+        .form-group { margin-bottom: 1rem; }
+        label { display: block; margin-bottom: 0.5rem; color: #666; }
+        input, textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #0056b3; }
+        #status { margin-top: 10px; text-align: center; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>📮 时间胶囊</h2>
+        <div class="form-group">
+            <label>你的邮箱</label>
+            <input type="email" id="email" placeholder="example@qq.com" required>
+        </div>
+        <div class="form-group">
+            <label>给未来的话</label>
+            <textarea id="message" rows="4" placeholder="写给未来的自己..." required></textarea>
+        </div>
+        <div class="form-group">
+            <label>发送时间</label>
+            <input type="datetime-local" id="date" required>
+        </div>
+        <button onclick="submitForm()">放入胶囊</button>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        async function submitForm() {
+            const email = document.getElementById('email').value;
+            const message = document.getElementById('message').value;
+            const date = document.getElementById('date').value;
+            const statusDiv = document.getElementById('status');
+
+            if(!email || !message || !date) {
+                statusDiv.innerText = "请填写完整信息";
+                statusDiv.style.color = "red";
+                return;
+            }
+
+            statusDiv.innerText = "正在封存...";
+            
+            try {
+                const response = await fetch('/schedule', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, message, date })
+                });
+                const result = await response.json();
+                statusDiv.innerText = result.message;
+                statusDiv.style.color = result.success ? "green" : "red";
+            } catch (e) {
+                statusDiv.innerText = "网络错误，请重试";
+            }
+        }
+    </script>
+</body>
+</html>
